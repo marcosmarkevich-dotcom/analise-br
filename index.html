@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Análise Estatística BR</title>
+<meta name="description" content="Preços de importação de origem China por NCM (US$/kg).">
+<meta name="theme-color" content="#0b2559">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Análise BR">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+:root{
+  --ink:#0f172a; --navy:#0b2559; --navy2:#16408f; --accent:#2563eb; --gold:#f2b705;
+  --bg:#eef1f6; --card:#fff; --line:#e2e7ef; --muted:#64748b; --green:#15803d; --red:#c62828;
+  --rj:#0f766e; --sp:#1d4ed8; --sc:#7c3aed; --pr:#c2410c; --br:#0b2559;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e5e9f0; --bg:#0d1424; --card:#16203a; --line:#26324f; --muted:#94a3b8; --green:#4ade80; --red:#f87171;
+  }
+}
+:root[data-theme="dark"]{ --ink:#e5e9f0; --bg:#0d1424; --card:#16203a; --line:#26324f; --muted:#94a3b8; --green:#4ade80; --red:#f87171; }
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;-webkit-text-size-adjust:100%}
+body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+header{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+header img{width:38px;height:38px;border-radius:9px}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px}
+header p{margin:2px 0 0;font-size:12px;opacity:.8}
+main{max-width:980px;margin:0 auto;padding:14px 16px 28px;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.card{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(15,23,42,.06)}
+.cap{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;margin:0 0 8px}
+input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;outline:none}
+input:focus{border-color:var(--accent)}
+#ncm{font-size:24px;font-weight:800;letter-spacing:1px;color:var(--accent)}
+.row{display:flex;gap:10px;align-items:stretch}
+.row input{flex:1;min-width:0;width:auto}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:12px 18px;background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap}
+button:active{transform:translateY(1px)}
+#results{list-style:none;margin:8px 0 0;padding:0;max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:10px;display:none}
+#results li{padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer}
+#results li:last-child{border-bottom:0}
+#results li b{color:var(--accent);margin-right:6px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{border-radius:12px;padding:10px 12px}
+.kpi span{display:block;font-size:12px;font-weight:600}
+.kpi strong{display:block;font-size:22px;font-weight:800;margin-top:2px}
+.kA{background:#e8f5ec;color:#15803d}.kB{background:#fdecec;color:#c62828}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.chip{background:rgba(100,116,139,.12);border-radius:10px;text-align:center;padding:7px 4px}
+.chip span{display:block;font-size:11px;color:var(--muted);font-weight:700}
+.chip strong{font-size:17px}
+.hint{font-size:12px;color:var(--accent);font-weight:600;margin-top:8px}
+#desc{font-size:13.5px;line-height:1.45;color:var(--muted)}
+#desc b{color:var(--ink);font-size:15px}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;font-size:13.5px}
+th{background:var(--navy);color:#fff;font-weight:700;padding:9px 8px;text-align:right;position:sticky;top:0}
+th:first-child,td:first-child{position:sticky;left:0;z-index:1;text-align:left}
+th:first-child{z-index:2}
+td{padding:8px;text-align:right;border-bottom:1px solid var(--line);background:var(--card);white-space:nowrap;font-variant-numeric:tabular-nums}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--card) 92%,var(--muted))}
+tr.hl td{background:#fff7d6;color:#0f172a}
+tr.y26 td{font-weight:700}
+td.nd{color:var(--muted);font-weight:400}
+.pill{display:inline-block;min-width:48px;text-align:center;color:#fff;border-radius:10px;font-size:11px;font-weight:800;padding:2px 6px;margin-right:6px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:760px){.grid2{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}.top{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.top{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.var{display:flex;justify-content:space-between;align-items:center;background:rgba(100,116,139,.08);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.var strong{font-size:26px;font-weight:800}
+.foot{font-size:11px;color:var(--muted);text-align:center}
+/* login */
+#login{max-width:420px;margin:40px auto;padding:0 16px}
+#login .card{padding:22px}
+#msg{color:var(--red);font-size:13px;min-height:18px;margin:8px 0}
+.hidden{display:none!important}
+#busy{position:fixed;inset:0;background:rgba(11,37,89,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;z-index:20}
+svg text{font-family:inherit}
+</style>
+</head>
+<body>
+<header>
+  <img src="icons/icon-192.png" alt="">
+  <div><h1>Análise Estatística – BR</h1><p>Preços de importação · origem China · US$/kg</p></div>
+</header>
+
+<section id="login">
+  <div class="card">
+    <p class="cap">Senha de acesso</p>
+    <input id="pw" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div id="msg"></div>
+    <button id="enter" style="width:100%">Entrar</button>
+  </div>
+  <p class="foot" style="margin-top:14px">Para instalar: no navegador, use “Adicionar à tela inicial”.</p>
+</section>
+
+<main id="app" class="hidden">
+  <div class="top">
+    <div class="card">
+      <p class="cap">NCM</p>
+      <div class="row">
+        <input id="ncm" inputmode="numeric" autocomplete="off" placeholder="0000.00.00">
+        <button id="go">Consultar</button>
+      </div>
+      <p class="cap" style="margin-top:14px">Buscar pela descrição TEC</p>
+      <input id="q" autocomplete="off" placeholder="ex.: assentos giratórios">
+      <ul id="results"></ul>
+    </div>
+    <div class="card">
+      <p class="cap">Valores de referência</p>
+      <div class="kpis">
+        <div class="kpi kA"><span>Referência A</span><strong id="r1">—</strong></div>
+        <div class="kpi kB"><span>Referência B</span><strong id="r2">—</strong></div>
+      </div>
+      <div class="chips" id="aliq"></div>
+      <div class="hint">Consultar TECWIN para confirmar alíquotas</div>
+    </div>
+  </div>
+  <div class="card"><p class="cap">Descrição na TEC</p><div id="desc">Digite uma NCM ou busque pela descrição.</div></div>
+  <div class="card">
+    <p class="cap">Distribuição de preços por percentil (US$/kg) <span style="font-weight:400;text-transform:none">· deslize para o lado →</span></p>
+    <div class="tablewrap"><table><thead><tr><th>Período</th><th>Q10</th><th>Q15</th><th>Q20</th><th>Q30</th><th>Q40</th><th>Q50</th><th>Média</th><th>Ocorr.</th></tr></thead><tbody id="tb"></tbody></table></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><p class="cap">Evolução Q30 · US$/kg</p><div id="chart"></div></div>
+    <div class="card">
+      <p class="cap">Variação do Q30 · 2024 → 2026</p>
+      <div class="var"><span>Brasil</span><strong id="evBR">—</strong></div>
+      <div class="var"><span>São Paulo</span><strong id="evSP">—</strong></div>
+      <p class="foot" id="fonte"></p>
+    </div>
+  </div>
+</main>
+<div id="busy" class="hidden">Abrindo dados…</div>
+<script src="app.js"></script>
+</body>
+</html>
